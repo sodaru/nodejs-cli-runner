@@ -1,6 +1,6 @@
 {
   "name": "nodejs-cli-runner",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "CLI Task Runner Utility in NodeJs",
   "keywords": [
     "Nodejs",
