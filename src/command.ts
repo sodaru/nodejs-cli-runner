@@ -38,7 +38,7 @@ export type VersionOptions = {
 };
 
 export const addVersionOptions = (command: Command): void => {
-  command.option("--version", `Print version of ${command.name}`);
+  command.option("--version", `Print version of ${command.name()}`);
 };
 
 export const getCommandVersion = async (): Promise<string> => {
