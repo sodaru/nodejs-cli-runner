@@ -104,7 +104,8 @@ export const childProcess = (
         stderr.show == "on" && stderr.return == "off" && !prefix
           ? "inherit"
           : "pipe"
-      ]
+      ],
+      env: process.env // any update to process.env in the current process are propagated only if specified explicitly
     });
     childProcess.on("error", e => {
       reject(e);
