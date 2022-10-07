@@ -8,7 +8,7 @@ CLI Task Run Utilities for NodeJs
 npm i nodejs-cli-runner
 ```
 
-## Configure set of Sub Commands
+## Configure a set of Sub Commands
 
 Read and write common file types with cached storage
 
@@ -30,7 +30,7 @@ import { taskRunner } from "nodejs-cli-runner";
 await taskRunner(
   taskName, // taskname
   task, // function returning a Promise
-  verbose, // boolean to print more verbose logs
+  options, // boolean or {verbose: boolean, progressIndicator: boolean} to print more verbose logs and enable progressIndicator
   taskArgs // arguments to task function
 );
 ```

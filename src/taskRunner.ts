@@ -1,33 +1,60 @@
 import { logError, logNormal, logSuccess } from "./log";
 
+let loaderStep = 0;
+const loaderChars = ["|", "/", "-", "\\"];
+
+let loaderCount = 0;
+
+let loaderIntervalId = null;
+
+const activateLoader = () => {
+  if (loaderIntervalId == null) {
+    loaderIntervalId = setInterval(() => {
+      process.stdout.write(loaderChars[loaderStep++]);
+      process.stdout.moveCursor(-1, 0);
+      if (loaderStep == 4) {
+        loaderStep = 0;
+      }
+    }, 200);
+  }
+  loaderCount++;
+};
+
+const clearLoader = () => {
+  loaderCount--;
+  if (loaderCount == 0) {
+    clearInterval(loaderIntervalId);
+    loaderIntervalId = null;
+  }
+};
+
 export const taskRunner = async <T extends unknown[], D>(
   name: string,
   task: (...args: T) => Promise<D>,
-  verbose: boolean,
+  options: boolean | { verbose: boolean; progressIndicator: boolean },
   ...args: T
 ): Promise<D> => {
-  const taskName = name;
+  const verbose = typeof options == "boolean" ? options : options.verbose;
+  const progressIndicator =
+    typeof options == "boolean" ? options : options.progressIndicator;
   if (verbose) {
-    logNormal(taskName + " :- Started");
+    logNormal(name + " :- Started");
   }
-  let pos = 0;
-  const chars = ["|", "/", "-", "\\"];
-  const intervalId = setInterval(() => {
-    process.stdout.write(chars[pos++] + "\r");
-    if (pos == 4) {
-      pos = 0;
-    }
-  }, 200);
+  if (progressIndicator) {
+    activateLoader();
+  }
   try {
     const result = await task(...args);
     if (verbose) {
-      logSuccess(taskName + " :- Completed");
+      logSuccess(name + " :- Completed");
     }
     return result;
   } catch (e) {
-    logError(taskName + " :- Failed");
+    logError(name + " :- Failed");
     throw e;
   } finally {
-    clearInterval(intervalId);
+    if (progressIndicator) {
+      clearLoader();
+    }
   }
 };
