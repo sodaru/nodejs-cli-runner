@@ -9,13 +9,16 @@ let loaderIntervalId = null;
 
 const activateLoader = () => {
   if (loaderIntervalId == null) {
-    loaderIntervalId = setInterval(() => {
-      process.stdout.write(loaderChars[loaderStep++]);
-      process.stdout.moveCursor(-1, 0);
-      if (loaderStep == 4) {
-        loaderStep = 0;
-      }
-    }, 200);
+    if (typeof process.stdout.moveCursor === "function") {
+      // when process.stdout is not pointing to a terminal , the possibility of moveCursor function is unknown
+      loaderIntervalId = setInterval(() => {
+        process.stdout.write(loaderChars[loaderStep++]);
+        process.stdout.moveCursor(-1, 0);
+        if (loaderStep == 4) {
+          loaderStep = 0;
+        }
+      }, 200);
+    }
   }
   loaderCount++;
 };
