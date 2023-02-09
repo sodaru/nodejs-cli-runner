@@ -31,7 +31,7 @@ await taskRunner(
   taskName, // taskname
   task, // function returning a Promise
   options, // boolean or {verbose: boolean, progressIndicator: boolean} to print more verbose logs and enable progressIndicator
-  taskArgs // arguments to task function
+  ...taskArgs // arguments to task function
 );
 ```
 
