@@ -1,6 +1,8 @@
 /* eslint-disable */
 const { childProcess } = require("../dist/cjs/childProcess");
 const chalk = require("chalk");
+const fs = require("fs/promises");
+const os = require("os");
 
 async function run() {
   console.log(chalk.cyan("\n Simple >"));
@@ -146,6 +148,23 @@ async function run() {
     console.log("message : " + e.message);
     console.log("result : " + JSON.stringify(e.result, null, 2));
   }
+
+  console.log(
+    chalk.yellow("\n Show stdout and take input from stdin when show = on")
+  );
+  console.log(chalk.yellow("-----------------------------------------------"));
+  const tmpDir = os.tmpdir() + "/test-nodejs-cli-runner" + Date.now();
+  await fs.mkdir(tmpDir, {
+    recursive: true
+  });
+  await childProcess(
+    tmpDir,
+    "npm",
+    ["init"],
+    { show: "on", return: "on" },
+    { show: "on", return: "on" },
+    chalk.red("[prefix] ")
+  );
 }
 
 run().then(

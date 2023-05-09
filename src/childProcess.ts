@@ -2,29 +2,26 @@ import { spawn } from "child_process";
 import { PassThrough, Readable, Transform, Writable } from "stream";
 
 class StreamPrefixer extends Transform {
-  private lastline = "";
   private prefix = "";
+  private lineSeparator = "";
+  private firstChunkProcessed = false;
 
   constructor(prefix: string) {
     super();
     this.prefix = prefix;
+    this.lineSeparator = process.platform === "win32" ? "\r\n" : "\n";
   }
 
   _transform(chunk: Uint8Array, encoding: string, cb: () => void) {
-    const data = this.lastline + String(chunk);
-    const lines = data.split("\n");
-    this.lastline = lines.pop();
-
-    for (const line of lines) {
-      this.push(this.prefix + line + "\n");
+    if (!this.firstChunkProcessed) {
+      this.push(this.prefix);
+      this.firstChunkProcessed = true;
     }
-    cb();
-  }
+    const data = String(chunk);
+    const lines = data.split(this.lineSeparator);
 
-  _flush(cb: () => void) {
-    if (this.lastline.length > 0) {
-      this.push(this.prefix + this.lastline);
-    }
+    this.push(lines.join(this.lineSeparator + this.prefix));
+
     cb();
   }
 }
@@ -80,6 +77,7 @@ const streamHandler = (
   const chunks = [];
   if (config.return == "on" || config.show == "error") {
     const datasaver = new PassThrough();
+
     datasaver.on("data", chunk => {
       chunks.push(chunk);
     });
@@ -118,6 +116,8 @@ export const childProcess = (
       windowsHide: true,
       env: process.env // any update to process.env in the current process are propagated only if specified explicitly
     });
+
+    process.stdin.pipe(childProcess.stdin);
 
     const chunks = {
       stdout: streamHandler(
